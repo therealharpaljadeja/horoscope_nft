@@ -14,12 +14,7 @@ import { useEffect, useState } from "react";
 import { Contract, providers } from "ethers";
 import NFT from "./abi/NFT.json";
 
-const NFT_CONTRACT_ADDRESS = "0xE746117d724173895d53C4f29a2dd2f4a629e74F";
-const METADATA_BASE_URL =
-	"https://gateway.pinata.cloud/ipfs/QmZpJo6fL2uaZePVEGPM5grNe5zWSZ495vunzGjyvtwPBT/";
-
-const IMAGE_BASE_URL =
-	"https://gateway.pinata.cloud/ipfs/QmegESoVoGEhw7ZAKdmPvKFFXTxhqeY52oHvwNX437zwEM/";
+const NFT_CONTRACT_ADDRESS = "0xa8832d65a1869f78BD849aFDc60967f9d66fFaEF";
 
 function App() {
 	// state to keep track whether the user has installed wallet or not.
@@ -36,9 +31,6 @@ function App() {
 	const [isMinting, setIsMinting] = useState(false);
 
 	const [NFTContract, setNFTContract] = useState(null);
-
-	const [metadataURL, setMetadataURL] = useState("");
-	const [artworkURL, setArtworkURL] = useState("");
 
 	useEffect(() => {
 		calculateZodiacSign(date);
@@ -60,7 +52,13 @@ function App() {
 	}, [account]);
 
 	async function mintNFT() {
-		await NFTContract.mintNFT(account, METADATA_BASE_URL + zodiacSign);
+		setIsMinting(true);
+		try {
+			await NFTContract.mintNFT(account, zodiacSign);
+		} catch (e) {
+		} finally {
+			setIsMinting(false);
+		}
 	}
 
 	async function connectWallet() {
@@ -204,14 +202,30 @@ function App() {
 							/>
 						</VStack>
 					</FormControl>
-					<Button onClick={mintNFT}>Mint NFT</Button>
+					<Button isLoading={isMinting} onClick={mintNFT}>
+						Mint NFT
+					</Button>
 				</VStack>
 				{zodiacSign ? (
-					<Image
-						width="295px"
-						height="473px"
-						src={`${IMAGE_BASE_URL}${zodiacSign}.png`}
-					/>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						preserveAspectRatio="xMinYMin meet"
+						viewBox="0 0 300 300"
+						width="400px"
+						height="400px"
+					>
+						<style>{`.base { fill: white; font-family: serif; font-size: 24px;`}</style>
+						<rect width="100%" height="100%" fill="black" />
+						<text
+							x="50%"
+							y="50%"
+							class="base"
+							dominant-baseline="middle"
+							text-anchor="middle"
+						>
+							{zodiacSign}
+						</text>
+					</svg>
 				) : null}
 			</HStack>
 		</VStack>
